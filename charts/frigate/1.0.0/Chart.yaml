@@ -1,0 +1,31 @@
+apiVersion: v2
+appVersion: "2022.8.7"
+dependencies:
+  - name: common
+    repository: https://library-charts.truecharts.org
+    version: 10.5.6
+deprecated: false
+description: test Frigate App for TrueNAS SCALE
+home: https://truecharts.org/docs/charts/stable/home-assistant
+icon: https://truecharts.org/img/hotlink-ok/chart-icons/home-assistant.png
+keywords:
+  - home-assistant
+  - hass
+  - homeassistant
+kubeVersion: ">=1.16.0-0"
+maintainers:
+  - email: info@truecharts.org
+    name: TrueCharts
+    url: https://truecharts.org
+name: frigate
+sources:
+  - https://github.com/truecharts/charts/tree/master/charts/stable/home-assistant
+  - https://github.com/home-assistant/home-assistant
+  - https://github.com/cdr/code-server
+type: application
+version: 1.0.0
+annotations:
+  truecharts.org/catagories: |
+    - home-automation
+  truecharts.org/SCALE-support: "true"
+  truecharts.org/grade: U

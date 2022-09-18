@@ -1,0 +1,123 @@
+image:
+  repository: tccr.io/truecharts/frigate-nvidia
+  pullPolicy: IfNotPresent
+  tag: latest@sha256:9facc1383ebbf148873bcc2fba501868b0e09417cffff7f6c06fb31b9c9b95ec
+
+securityContext:
+  readOnlyRootFilesystem: false
+  runAsNonRoot: false
+
+podSecurityContext:
+  runAsUser: 0
+  runAsGroup: 0
+
+service:
+  main:
+    ports:
+      main:
+        port: 5000
+        targetPort: 5000
+  rtmp:
+    enabled: true
+    ports:
+      rtmp:
+        enabled: true
+        port: 1935
+        targetPort: 1935
+
+initContainers:
+  init:
+    image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+    command: ["/config/init/init.sh"]
+    volumeMounts:
+      - name: init
+        mountPath: "/config/init"
+      - name: config
+        mountPath: "/config"
+
+# # When hostNetwork is true set dnsPolicy to ClusterFirstWithHostNet
+# dnsPolicy: ClusterFirstWithHostNet
+
+persistence:
+  config:
+    enabled: true
+    mountPath: "/config"
+  db:
+    enabled: true
+    mountPath: "/db"
+  shm:
+    enabled: true
+    type: emptyDir
+    mountPath: /dev/shm
+    medium: Memory
+    sizeLimit: "{{ .Values.frigate.shmSize }}"
+  init:
+    enabled: "true"
+    mountPath: "/config/init"
+    readOnly: true
+    type: "custom"
+    volumeSpec:
+      configMap:
+        name: '{{ include "tc.common.names.fullname" . }}-init'
+        defaultMode: 0777
+
+configmap:
+  init:
+    enabled: true
+    data:
+      init.sh: |-
+        #!/bin/sh
+        if test -f "/config/config.yml"; then
+          echo "config.yml exists."
+          if grep -q database: "/config/config.yml"; then
+          echo "config.yml already contains database"
+          else
+          cat /config/init/database.default >> /config/config.yml
+          fi
+          if grep -q mqtt: "/config/config.yml"; then
+          echo "config.yml already contains mqtt section"
+          else
+          cat /config/init/mqtt.default >> /config/config.yml
+          fi
+        else
+        echo "config.yml does NOT exist."
+        cp /config/init/config.yml.default /config/config.yml
+        cat /config/init/database.default >> /config/config.yml
+        cat /config/init/mqtt.default >> /config/config.yml
+        fi
+
+        echo "Installation complete."
+
+      config.yml.default: |-
+        # Required minimal camera setup. Change to match your own cameras after installation
+        cameras:
+          back:
+            ffmpeg:
+              inputs:
+                - path: rtsp://viewer:{FRIGATE_RTSP_PASSWORD}@10.0.10.10:554/cam/realmonitor?channel=1&subtype=2
+                  roles:
+                    - detect
+                    - rtmp
+            detect:
+              width: 1280
+              height: 720
+      database.default: |-
+
+        database:
+          path: /db/frigate.db
+      mqtt.default: |-
+
+        mqtt:
+          host: "{{ .Values.frigate.mqtt.host }}"
+          username: "{{ .Values.frigate.mqtt.username }}"
+          password: "{{ .Values.frigate.mqtt.password }}"
+
+frigate:
+  mqtt:
+    host: "mosquitto.ix-mosquitto.svc.cluster.local"
+    username: ""
+    password: ""
+  shmSize: 64Mi
+
+portal:
+  enabled: true

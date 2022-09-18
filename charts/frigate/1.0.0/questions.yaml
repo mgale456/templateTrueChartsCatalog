@@ -290,15 +290,15 @@ questions:
                   type: string
                   default: "mosquitto.ix-mosquitto.svc.cluster.local"
                   required: true
-              - variable: username
-                label: "MQTT username"
-                description: "MQTT username"
+              - variable: user
+                label: "MQTT user"
+                description: "Optional MQTT user for authentication"
                 schema:
                   type: string
                   default: ""
               - variable: password
                 label: "MQTT password"
-                description: "MQTT password"
+                description: "Optional MQTT password"
                 schema:
                   type: string
                   default: ""

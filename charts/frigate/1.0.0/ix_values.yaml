@@ -109,13 +109,13 @@ configmap:
 
         mqtt:
           host: "{{ .Values.frigate.mqtt.host }}"
-          username: "{{ .Values.frigate.mqtt.username }}"
+          user: "{{ .Values.frigate.mqtt.username }}"
           password: "{{ .Values.frigate.mqtt.password }}"
 
 frigate:
   mqtt:
     host: "mosquitto.ix-mosquitto.svc.cluster.local"
-    username: ""
+    user: ""
     password: ""
   shmSize: 64Mi
 

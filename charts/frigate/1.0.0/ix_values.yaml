@@ -115,8 +115,8 @@ configmap:
 frigate:
   mqtt:
     host: "mosquitto.ix-mosquitto.svc.cluster.local"
-    user: ""
-    password: ""
+    user:
+    password:
   shmSize: 64Mi
 
 portal:
